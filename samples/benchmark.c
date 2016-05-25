@@ -39,6 +39,7 @@ volatile fpt tmpFloat = FONEHALF;
 
 void initTests() {
 	playSound(chord2);
+//	playSoundWithLength(chord2, FONEHALF);
 }
 void t1(void) {
 	tmpFloat += sound(fptConst(0.01234f));
