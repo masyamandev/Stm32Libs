@@ -99,6 +99,8 @@ fpt sinfrq(fpt angle) {
 
 fpt pow2nfst(fpt minusPow) {
 	//if (minusPow <= 0) return FONE;
+	// minusPow >= fptFromInt(16), dropping more (eg 0xFFF80000) gives better performance
+	if (minusPow & 0xFFF00000) return FZERO;
 	uint32_t scale = minusPow >> FPT_FBITS;
 	uint32_t n = minusPow >> EXP_SCALE_BITS;
 	return exp2nTable[n & EXP_LOOKUP_MASK] >> scale;
