@@ -1,7 +1,9 @@
+/**
+ * Fixed point arithmetics optimized for 32-bits microcontrollers without FPU.
+ */
+
 #ifndef MICROMATH_INCLUDED
 #define MICROMATH_INCLUDED
-
-
 
 typedef int32_t fpt;
 typedef	int64_t	fptd;

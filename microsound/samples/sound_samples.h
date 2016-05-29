@@ -1,3 +1,6 @@
+/**
+ * Some samples which can be used in microsound.
+ */
 
 #include "micromath.h"
 

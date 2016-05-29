@@ -1,3 +1,9 @@
+/**
+ * Implementation of microsound library for stm32f4xx microcontroller with sound output via
+ * DAC (Pin PA4 on stm32f407vgt6).
+ * This implementation uses timer TIM6.
+ */
+
 #include <stm32f4xx_tim.h>
 
 #include "microsound.h"
@@ -7,8 +13,6 @@
 #define TIMER_INT_CNT 	(TIMER_CLOCK / MICROSOUND_FREQUENCY / (TIMER_PRESCALE + 1))
 
 void initSound() {
-//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-//	RCC_AHB1PeriphResetCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	/* Switch on DAC */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 	/* Switch on timer 6 */

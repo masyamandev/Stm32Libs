@@ -1,9 +1,19 @@
+/**
+ * Common code for sound management.
+ * It defines type SoundFunction which is a function (fpt) -> fpt. It uses time in seconds
+ * as parameter of fixed-point type fpt and return fixed-point value -1..1 as output.
+ * Output of SoundFunction is scaled to 16-bit output value and sent into DAC or PWM
+ * (platform specific).
+ */
+
 #ifndef MICROSOUND_INCLUDED
 #define MICROSOUND_INCLUDED
 
 #include "micromath.h"
 
+#ifndef MICROSOUND_FREQUENCY
 #define MICROSOUND_FREQUENCY 		16000 // PCM sample rate
+#endif
 
 #define FREQ_C3 fptConst(130.81)
 #define FREQ_Db3 fptConst(138.59)
