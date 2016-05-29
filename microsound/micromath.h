@@ -104,6 +104,18 @@ fpt squarefrq(fpt angle) {
 
 #define cutNegative(T) (T >= 0 ? T : 0)
 
+// Return value closest to 0 with limited maximal difference
+fpt moveToZero(fpt value, fpt maxDiff) {
+	if (value > maxDiff) {
+		return value - maxDiff;
+	} else if (value < -maxDiff) {
+		return value + maxDiff;
+	} else {
+		return 0;
+	}
+}
+
+
 fpt pow2nfst(fpt minusPow) {
 	//if (minusPow <= 0) return FONE;
 	// minusPow >= fptFromInt(16), dropping more (eg 0xFFF80000) gives better performance
