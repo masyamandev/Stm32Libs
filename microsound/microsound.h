@@ -79,6 +79,7 @@ void playSound(SoundFunction soundFunction) {
 	soundLength = 0x7F000000;
 }
 
+// Return 16 bits value [0..65535]
 uint16_t getNextSample(void) {
 	fpt s = sound(soundPlayTime);
 	int32_t val = ((s + FONE) >> 1);

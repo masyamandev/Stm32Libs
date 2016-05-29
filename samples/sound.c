@@ -69,6 +69,8 @@ int main(void) {
 
 	currentSound = (currentSound < 0) ? 0 : (currentSound + 1) % SAMPLES_LEN;
 
+//	playSound(sine);
+
 	while (1) {
 		waitForButton();
 		playSound(samples[currentSound]);
