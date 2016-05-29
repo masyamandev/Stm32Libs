@@ -34,3 +34,27 @@ fpt chord2(fpt time) {
 			fmul3(sinfrq(fmul(cutNegative(time - CHORD_DELAY), FREQ_E4)), CHORD_VOL, pow2nfst(fmul(time - CHORD_DELAY, CHORD_EXP))) +
 			fmul3(sinfrq(fmul(cutNegative(time - CHORD_DELAY * 2), FREQ_G4)), CHORD_VOL, pow2nfst(fmul(time - CHORD_DELAY * 2, CHORD_EXP)));
 }
+
+fpt perc(fpt time) {
+	return fmul3(randomSym(), fptConst(0.25) , pow2nfst(fmul(time, fptFromInt(48))));
+}
+
+fpt drum(fpt time) {
+	return fmul3(randomSym(), fptConst(0.5), pow2nfst(fmul(time, fptFromInt(64)))) +
+			fmul3(sinfrq(fmul(time, fptFromInt(55))),
+			fptConst(5), pow2nfst(fmulInt(time, 24)));
+}
+
+fpt wawa(fpt time) {
+	return fmul3(sinfrq(fmul(time + (sinfrq(fmulInt(time, 8)) >> 4), fptFromInt(55))),//sinfrq(fmulInt(time, 8)) * 10)),
+			fptConst(5), pow2nfst(fmulInt(time, 16)));
+}
+
+fpt pfrr(fpt time) {
+	return fmul3(squarefrq(fmul(time, fptFromInt(20) + randomSym())), fptConst(0.5), pow2nfst(fmulInt(time, 16)));
+}
+
+fpt noise(fpt time) {
+	return fmul3(randomSym(), time << 2, pow2nfst(fmul(time, fptFromInt(16))));
+}
+

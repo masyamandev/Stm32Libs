@@ -95,6 +95,11 @@ fpt sinfrq(fpt angle) {
 }
 #define cosfrq(angle) sinfrq(FONEHALF + angle)
 
+// Square form with period 1 instead of 2*Pi
+fpt squarefrq(fpt angle) {
+	return (angle & FONEHALF) ? FONE : -FONE;
+}
+
 #define cutNegative(T) (T >= 0 ? T : 0)
 
 fpt pow2nfst(fpt minusPow) {
@@ -119,5 +124,15 @@ fpt pow2fst(fpt pow) {
 	}
 }
 
+// fast pseudo-random generator for noise generation
+static fpt randomSeed = 6581;
+fpt random() { // random range [0, 1)
+	randomSeed = randomSeed * 456987469 + 756436969;
+	return randomSeed & 0xFFFF;
+}
+fpt randomSym() { // random range [-1, 1)
+	randomSeed = randomSeed * 456987469 + 756436969;
+	return (randomSeed & 0x1FFFF) - FONE;
+}
 
 #endif

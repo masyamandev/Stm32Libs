@@ -10,16 +10,35 @@
 #include <microsound_stm32f4xx.h>
 #include <sound_samples.h>
 
+//#include <lcd_text_display.h>
+//
+//void debug() {
+//	char s[17];
+//	s[16] = 0;
+//
+//	cursor(0,0);
+//	itoa(fptToInt(soundPlayTime), s, 10);
+//	printStr(&s[0]);
+//	printStr("        ");
+//
+//	cursor(0,8);
+//	itoa(ffrac(soundPlayTime), s, 10);
+//	printStr(&s[0]);
+//	printStr("        ");
+//}
+
 void waitForButton() {
 	for (uint32_t i = 0; i < 10000; i++) {
 		ledsOff(LEDS_ALL);
 	}
 	while (isButtonPressed()) {
+//		debug();
 	}
 	for (uint32_t i = 0; i < 10000; i++) {
 		ledsOff(LEDS_ALL);
 	}
 	while (!isButtonPressed()) {
+//		debug();
 	}
 	for (uint32_t i = 0; i < 10000; i++) {
 		ledsOn(LEDS_ALL);
@@ -27,22 +46,32 @@ void waitForButton() {
 	ledsOff(LEDS_ALL);
 }
 
+#define SAMPLES_LEN 8
+static SoundFunction samples[SAMPLES_LEN] = {
+		beep,
+		chord,
+		chord2,
+		pfrr,
+		wawa,
+		perc,
+		drum,
+		noise
+};
+uint32_t currentSound __attribute__ ((section (".noinit")));
+
 int main(void) {
 
 	initLeds(LEDS_ALL);
 	initButton();
 	initSound();
 
-//	playSound(sine);
-//	while (1) {
-//	}
+//	initializeLcd();
+
+	currentSound = (currentSound < 0) ? 0 : (currentSound + 1) % SAMPLES_LEN;
+
 	while (1) {
 		waitForButton();
-		playSound(beep);
-		waitForButton();
-		playSound(chord);
-		waitForButton();
-		playSound(chord2);
+		playSound(samples[currentSound]);
 	}
 }
 

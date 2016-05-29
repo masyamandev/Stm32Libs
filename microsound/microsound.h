@@ -52,32 +52,34 @@ fpt silence(fpt time) {
 
 #define SOUND_TIMER_SCALE 4 // around 30 minutes max play time
 
-volatile SoundFunction sound = silence;
-volatile fpt soundTime = FZERO;
-volatile fpt soundLength = 0x7F000000; // big value, but not MAX_INT
+#define soundPlayTime (soundTimeCounter >> SOUND_TIMER_SCALE)
+
+volatile static SoundFunction sound = silence;
+volatile static fpt soundTimeCounter = FZERO;
+volatile static fpt soundLength = 0x7F000000; // big value, but not MAX_INT
 
 void playSoundWithLength(SoundFunction soundFunction, fpt soundStopAt) {
-	soundTime = FZERO;
+	soundTimeCounter = FZERO;
 	sound = soundFunction;
 	soundLength = soundStopAt << SOUND_TIMER_SCALE;
 }
 void playSound(SoundFunction soundFunction) {
-	soundTime = FZERO;
+	soundTimeCounter = FZERO;
 	sound = soundFunction;
 	soundLength = 0x7F000000;
 }
 
 uint16_t getNextSample(void) {
-	fpt s = sound(soundTime >> SOUND_TIMER_SCALE);
+	fpt s = sound(soundPlayTime);
 	int32_t val = ((s + FONE) >> 1);
 	if (val < 0) {
 		val = 0;
 	} else if (val >= FONE) {
 		val = FONE - 1;
 	}
-	soundTime += fdivInt(FONE << SOUND_TIMER_SCALE, MICROSOUND_FREQUENCY);
+	soundTimeCounter += fdivInt(FONE << SOUND_TIMER_SCALE, MICROSOUND_FREQUENCY);
 	// could be removed to get some performance boost
-	if (soundTime > soundLength) {
+	if (soundTimeCounter > soundLength) {
 		playSound(silence); // overflow, stop playing sound
 	}
 	return val;
