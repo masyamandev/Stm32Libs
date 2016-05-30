@@ -11,6 +11,7 @@
 #include <sound_samples.h>
 
 #include <micromusic.h>
+#include <micromusic_sample_songs.h>
 
 //#include <lcd_text_display.h>
 //
@@ -71,7 +72,7 @@ int main(void) {
 
 	currentSound = (currentSound < 0) ? 0 : (currentSound + 1) % SAMPLES_LEN;
 
-	playMusic(&(sampleMusic[0]));
+	playMusic(&(ohSusannaSong[0]));
 
 	while (1) {
 		waitForButton();

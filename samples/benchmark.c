@@ -17,6 +17,7 @@
 #include "sound_samples.h"
 
 #include "micromusic.h"
+#include "micromusic_sample_songs.h"
 
 
 volatile uint32_t testRun = 1;
@@ -42,7 +43,7 @@ volatile fpt tmpFloat = FONEHALF;
 void initTests() {
 //	playSound(chord2);
 //	playSoundWithLength(chord2, FONEHALF);
-	playMusic(&(sampleMusic[0]));
+	playMusic(&(ohSusannaSong[0]));
 }
 void t1(void) {
 	tmpFloat += sound(fptConst(0.01234f));
