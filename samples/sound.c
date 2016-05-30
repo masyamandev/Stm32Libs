@@ -10,6 +10,8 @@
 #include <microsound_stm32f4xx.h>
 #include <sound_samples.h>
 
+#include <micromusic.h>
+
 //#include <lcd_text_display.h>
 //
 //void debug() {
@@ -69,7 +71,7 @@ int main(void) {
 
 	currentSound = (currentSound < 0) ? 0 : (currentSound + 1) % SAMPLES_LEN;
 
-//	playSound(sine);
+	playMusic(&(sampleMusic[0]));
 
 	while (1) {
 		waitForButton();

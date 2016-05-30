@@ -35,7 +35,7 @@ typedef fpt (*InstrumentFunction)(fpt, uint8_t);
 #define MUSIC_TRACK_7				0x0700
 
 
-volatile static uint16_t *musicData;
+volatile static uint16_t const *musicData;
 volatile static uint32_t musicDataIndex;
 volatile static fpt nextTime = FZERO;
 volatile static fpt bpmDelay = FONE;
@@ -55,7 +55,7 @@ typedef struct {
 	uint8_t data;
 } TrackData;
 
-volatile static TrackData tracks[MUSIC_TRACKS];
+static TrackData tracks[MUSIC_TRACKS]; // volatile might be required
 
 inline static fpt playInstrument(TrackData* track, fpt time) {
 	return fmul(
@@ -127,7 +127,7 @@ int isMusicPlaying() {
 
 fpt electricPiano(fpt time, uint8_t data);// TODO
 
-void playMusic(uint16_t *musicDataArray) {
+void playMusic(uint16_t const *musicDataArray) {
 	playSound(silence);
 	musicData = musicDataArray;
 	musicDataIndex = 0;
