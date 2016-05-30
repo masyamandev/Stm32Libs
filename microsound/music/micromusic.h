@@ -39,7 +39,7 @@ volatile static uint16_t *musicData;
 volatile static uint32_t musicDataIndex;
 volatile static fpt nextTime = FZERO;
 volatile static fpt bpmDelay = FONE;
-volatile static fpt clickRemoval = FZERO;
+static fpt clickRemoval = FZERO; // slightly faster without volatile
 
 #define CLICK_REMOVAL_STRENGTH	4 // IN BITS
 
@@ -133,7 +133,7 @@ void playMusic(uint16_t *musicDataArray) {
 	musicDataIndex = 0;
 	nextTime = FZERO;
 	bpmDelay = FONE;
-	clickRemoval = FZERO;
+	//clickRemoval = FZERO;
 	for (int i = 0; i < MUSIC_TRACKS; i++) {
 		tracks[i].instrument = electricPiano;//silenceInstrument;
 		tracks[i].volume = FONEHALF;
