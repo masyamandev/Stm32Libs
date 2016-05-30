@@ -36,14 +36,14 @@
 #define MUSIC_TRACK_5				0x0500
 #define MUSIC_TRACK_6				0x0600
 #define MUSIC_TRACK_7				0x0700
-#define MUSIC_TRACK_8				0x0000
-#define MUSIC_TRACK_9				0x0100
-#define MUSIC_TRACK_A				0x0200
-#define MUSIC_TRACK_B				0x0300
-#define MUSIC_TRACK_C				0x0400
-#define MUSIC_TRACK_D				0x0500
-#define MUSIC_TRACK_E				0x0600
-#define MUSIC_TRACK_F				0x0700
+#define MUSIC_TRACK_8				0x0800
+#define MUSIC_TRACK_9				0x0900
+#define MUSIC_TRACK_A				0x0A00
+#define MUSIC_TRACK_B				0x0B00
+#define MUSIC_TRACK_C				0x0C00
+#define MUSIC_TRACK_D				0x0D00
+#define MUSIC_TRACK_E				0x0E00
+#define MUSIC_TRACK_F				0x0F00
 
 
 volatile static uint16_t const *musicData;
