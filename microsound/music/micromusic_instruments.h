@@ -35,6 +35,9 @@ typedef fpt (*InstrumentFunction)(fpt, uint8_t);
 #define NOTE_B5 29
 #define NOTE_C6 30
 
+#define NOTE_MASK 	0b00111111
+#define NOTE_SHORT 	0b01000000
+
 const fpt notes[] = {
 		FZERO,FREQ_G3,FREQ_Ab3,FREQ_A3,FREQ_Bb3,FREQ_B3,
 		FREQ_C4,FREQ_Db4,FREQ_D4,FREQ_Eb4,FREQ_E4,FREQ_F4,
@@ -44,18 +47,102 @@ const fpt notes[] = {
 		FREQ_C6};
 
 
-#define PIANO_EXP fptFromInt(4)
+//#define mulFreq(time, freq) (fmul(time, freq))//(fmulfst(ffrac(time), freq))
+//#define mulFreqTrim0(time, freq) (fmul(cutNegative(time), freq))//(fmulfst(ffrac(cutNegative(time)), freq))
+#define SAFE_FREQ_MUL 0x000FFFFF
+#define mulFreq(time, freq) (fmulfst((time) & SAFE_FREQ_MUL, freq))
+#define mulFreqTrim0(time, freq) (fmulfst((cutNegative(time)) & SAFE_FREQ_MUL, freq))
+
+
+static inline fpt waveform(fpt time, fpt freq, int8_t const *form) {
+	fpt t = mulFreq(time, freq);
+	fpt l = t << SINUS_TABLE_BITS;
+	uint32_t n = fptToInt(l) & SINUS_LOOKUP_MASK;
+	return finterpolate8BitSigned(form[n], form[n + 1], ffrac(l) >> (FPT_FBITS - INTERPOLATION_BITS));
+}
+
+#define PERCUSSION_HAT_H	0b000010010
+#define PERCUSSION_HAT_L	0b000011001
+#define PERCUSSION_BAR_H	0b001111011
+#define PERCUSSION_BAR_L	0b111011010
+fpt percussions(fpt time, uint8_t data) {
+	int noiseVol =  (data & 0b00000011);
+	int noiseLen = ((data & 0b00001100) >> 2) + 1;
+	int bassVol =  ((data & 0b00110000) >> 4);
+	int bassLen =  ((data & 0b11000000) >> 6) + 1;
+
+	return fmul3(randomSym(), fptConst(0.2) * noiseVol, pow2nfst(fmul(time, fptFromInt(16 * noiseLen)))) +
+			fmul3(sinfrq(fmul(time, fptFromInt(55))), fptConst(2) * bassVol, pow2nfst(fmulInt(time, 8 * bassLen)));
+}
+
 fpt electricPiano(fpt time, uint8_t data) {
-	return fmul(sinfrq(fmul(time, notes[data])), pow2nfst(fmul(time, PIANO_EXP)));
+	return fmulfst(sinfrq(mulFreq(time, notes[data & NOTE_MASK])), pow2nfst(fmulInt(time, 2)));
+}
+
+fpt harmonica(fpt time, uint8_t data) {
+	fpt t = mulFreq(time, notes[data & NOTE_MASK]);
+	return fmul3(
+				sinfrq(fmulInt(t, 3)),
+				fdivInt(sawfrq(t), 2) + 1,
+				pow2nfst(time) - pow2nfst(fmulInt(time, 40))
+			);
+}
+
+/* Sample-based isntrument */
+static const int8_t harmonicaSample[] = {
+		2, -40, -7, -33, -66, -9, -8, 31,
+		68, 62, 76, 65, 26, -38, -75, -33,
+		-52, -12, -11, -3, 73, 46, 25, -43,
+		-35, -10, -54, -24, -5, 33, 50, 23,
+		2};
+fpt harmonicaSampled(fpt time, uint8_t data) {
+	return fmulfst(waveform(time, notes[data & NOTE_MASK], harmonicaSample),
+				pow2nfst(time) - pow2nfst(fmulInt(time, 40)));
+}
+
+#define ODG_DELAY fptConst(0.01f)
+#define ODG_EXP_N 	3
+#define ODG_EXP_S 	60
+#define ODG_DIST_1 	8//2
+#define ODG_DIST_2 	32//16
+fpt overdrivenGuitar(fpt time, uint8_t data) {
+	if (data == 0) return 0;
+	int exp = (data & NOTE_SHORT) ? ODG_EXP_S : ODG_EXP_N;
+	fpt v =
+			fmulfst(sinfrq(mulFreq(time, notes[data & NOTE_MASK] >> 1)), pow2nfst(fmulInt(time, exp))) +
+			fmulfst(sinfrq(mulFreqTrim0(time - ODG_DELAY, notes[(data + 7) & NOTE_MASK] >> 1)), pow2nfst(fmulInt(time - ODG_DELAY, exp))) +
+			fmulfst(sinfrq(mulFreqTrim0(time - ODG_DELAY * 2, notes[data & NOTE_MASK])), pow2nfst(fmulInt(time - ODG_DELAY * 2, exp)));
+	if (v > 0) {
+		v = pow2nfst(fmulInt(v, ODG_DIST_1)) - pow2nfst(fmulInt(v, ODG_DIST_2));
+	} else {
+		v = pow2nfst(-fmulInt(v, ODG_DIST_2)) - pow2nfst(-fmulInt(v, ODG_DIST_1));
+	}
+	return v;
 }
 
 
-#define INSTRUMENT_ELECTRIC_PIANO		0
-#define INSTRUMENT_OVERDRIVEN_GUITAR	1
+fpt bass(fpt time, uint8_t data) {
+	fpt n = notes[data & NOTE_MASK] >> 2;
+	return fmulfst(
+			sinfrq(mulFreq(time, n)) +
+			sinfrq(mulFreq(time, n * 2)) / 2 +
+			sinfrq(mulFreq(time, n * 3)) / 3 +
+			sinfrq(mulFreq(time, n * 4)) / 4
+		, pow2nfst(fmulInt(time, 2)));
+}
+
+#define INSTRUMENT_PERCUSSIONS			0
+#define INSTRUMENT_ELECTRIC_PIANO		1
+#define INSTRUMENT_HARMONICA			2
+#define INSTRUMENT_OVERDRIVEN_GUITAR	3
+#define INSTRUMENT_BASS					4
 
 const InstrumentFunction instruments[] = {
+		percussions,
 		electricPiano,
-		electricPiano
+		harmonica,
+		overdrivenGuitar,
+		bass
 };
 
 #endif
