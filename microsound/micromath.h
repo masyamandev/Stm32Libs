@@ -15,6 +15,8 @@ typedef	int64_t	fptd;
 #define fptConst(R) ((fpt)((R) * (((fptd)1 << FPT_FBITS) + ((R) >= 0 ? 0.5 : -0.5))))
 
 #define fptFromInt(I) 	(((fpt)(I)) << FPT_FBITS)
+#define fptFromUByte(I)	(((fpt)(I)) << (FPT_FBITS - 8)) // from unsigned byte to [0..1)
+#define fptFromSByte(I)	(((fpt)(I)) << (FPT_FBITS - 7)) // from signed byte to [-1..1)
 #define fptToInt(F) 	((F) >> FPT_FBITS)
 
 #define faddInt(A,B) 	((A) + fptFromInt(B))
@@ -40,20 +42,25 @@ typedef	int64_t	fptd;
 #define FONE		(1 << FPT_FBITS)
 #define FONEHALF 	(FONE >> 1)
 #define FTWO		(FONE + FONE)
-#define FPI			fptConst(3.14159265358979323846)
-#define FTWOPI		fptConst(2 * 3.14159265358979323846)
-#define FHALFPI		fptConst(3.14159265358979323846 / 2)
-#define FE			fptConst(2.7182818284590452354)
 
 
 #define SINUS_TABLE_BITS 5
 #define SINUS_LOOKUP_MASK 31
+#ifdef PRECISE_SIN_TABLE
 const fpt sinTable[33] = {
 		0, 12785, 25080, 36410, 46341, 54491, 60547, 64277,
 		65536, 64277, 60547, 54491, 46341, 36410, 25080, 12785,
 		0, -12785, -25080, -36410, -46341, -54491, -60547, -64277,
 		-65536, -64277, -60547, -54491, -46341, -36410, -25080, -12785,
 		0}; // last value could be used for interpolation
+#else
+const int8_t sinTableUB[33] = {
+		0, 25, 49, 71, 90, 106, 117, 125,
+		127, 125, 117, 106, 90, 71, 49, 25,
+		0, -25, -49, -71, -90, -106, -117, -125,
+		-127, -125, -117, -106, -90, -71, -49, -25,
+		0}; // last value could be used for interpolation
+#endif
 
 #define EXP_SCALE_BITS (FPT_FBITS - 5)
 #define EXP_LOOKUP_MASK 31
@@ -73,27 +80,20 @@ const fpt exp2pTable[33] = {
 // Will not work for values > 127
 #define INTERPOLATION_BITS 8
 #define INTERPOLATION_MASK ((1 << INTERPOLATION_BITS) - 1)
-#define finterpolate(A, B, V8) (((A) * ((1<<INTERPOLATION_BITS) - (V8)) + (B) *(V8)) >> INTERPOLATION_BITS)
+#define finterpolate(A, B, V8) ((((fpt) A) * ((1<<INTERPOLATION_BITS) - (V8)) + ((fpt) B) *(V8)) >> INTERPOLATION_BITS)
 
-fpt sinfst(fpt angle) {
-//	fpt l = ((angle % FTWOPI) << (SINUS_TABLE_BITS + INTERPOLATION_BITS)) / FTWOPI;
-//	uint32_t n = (l >> INTERPOLATION_BITS) & SINUS_LOOKUP_MASK;
-//	return finterpolate(sinTable[n], sinTable[n + 1], l & INTERPOLATION_MASK);
-	fpt l = angle * (fptFromInt(1 << SINUS_TABLE_BITS) / FTWOPI);
-	uint32_t n = fptToInt(l) & SINUS_LOOKUP_MASK;
-	//return sinTable[n];
-	return finterpolate(sinTable[n], sinTable[n + 1], ffrac(l) >> (FPT_FBITS - INTERPOLATION_BITS));
-}
-
-//#define sinfst(angle) (sinTable[((angle % FTWOPI) * 32 / FTWOPI) & SINUS_LOOKUP_MASK])
-#define cosfst(angle) sinfst(FHPI + angle)
+#define finterpolate8BitSigned(A, B, V8) ((((fpt) A) * ((1<<INTERPOLATION_BITS) - (V8)) + ((fpt) B) *(V8)) << 1)
+#define finterpolate8BitUnigned(A, B, V8) ((((fpt) A) * ((1<<INTERPOLATION_BITS) - (V8)) + ((fpt) B) *(V8)))
 
 // Frequency sinus with period 1 instead of 2*Pi
 fpt sinfrq(fpt angle) {
 	fpt l = angle << SINUS_TABLE_BITS;
 	uint32_t n = fptToInt(l) & SINUS_LOOKUP_MASK;
-	//return sinTable[n];
+#ifdef PRECISE_SIN_TABLE
 	return finterpolate(sinTable[n], sinTable[n + 1], ffrac(l) >> (FPT_FBITS - INTERPOLATION_BITS));
+#else
+	return finterpolate8BitSigned(sinTableUB[n], sinTableUB[n + 1], ffrac(l) >> (FPT_FBITS - INTERPOLATION_BITS));
+#endif
 }
 #define cosfrq(angle) sinfrq(FONEHALF + angle)
 
@@ -101,6 +101,18 @@ fpt sinfrq(fpt angle) {
 fpt squarefrq(fpt angle) {
 	return (angle & FONEHALF) ? FONE : -FONE;
 }
+
+// Saw form with period 1 instead of 2*Pi
+fpt sawfrq(fpt angle) {
+	return (ffrac(angle) << 1) - FONE;
+}
+
+// Triangle form with period 1 instead of 2*Pi
+fpt trianglefrq(fpt angle) {
+	fpt val = ffrac(angle) << 2;
+	return (val <= FTWO) ? (val - FONE) : (fptFromInt(3) - val);
+}
+
 
 #define cutNegative(T) (T >= 0 ? T : 0)
 
