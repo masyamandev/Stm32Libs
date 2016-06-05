@@ -52,7 +52,7 @@ volatile static fpt nextTime = FZERO;
 volatile static fpt bpmDelay = FONE;
 static fpt clickRemoval = FZERO; // slightly faster without volatile
 
-#define CLICK_REMOVAL_STRENGTH	4 // IN BITS
+#define CLICK_REMOVAL_STRENGTH	5 // IN BITS
 
 #ifndef MUSIC_TRACKS
 #define MUSIC_TRACKS 	4
@@ -97,10 +97,10 @@ fpt musicSound(fpt time) {
 			track->instrument = instruments[data];
 			break;
 		case MUSIC_COMMAND_VOLUME:
-			tracks->volume = data << 8;
+			track->volume = data << 8;
 			break;
 		case MUSIC_COMMAND_DELAY:
-			tracks->delay = data << 8;
+			track->delay = data << 8;
 			break;
 		case MUSIC_COMMAND_PLAY_NOTE:
 			clickRemoval += playInstrument(track, time);
@@ -121,7 +121,7 @@ fpt musicSound(fpt time) {
 		}
 	}
 
-//	clickRemoval = moveToZero(clickRemoval, CLICK_REMOVAL_DELTA);
+//	clickRemoval = moveToZero(clickRemoval, 64);
 	clickRemoval -= clickRemoval >> CLICK_REMOVAL_STRENGTH; // Slightly faster
 
 	fpt val = clickRemoval;
