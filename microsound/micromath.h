@@ -26,14 +26,14 @@ typedef	int64_t	fptd;
 #define fsub(A,B) 		((A) - (B))
 
 #define fmulInt(A,B)	((A) * (B))
-#define fmulfst(A,B)	(((A) * (B >> 8)) >> (FPT_FBITS - 8)) // fast non-precise multiplication for small values (<10)
+#define fmulfst(A,B)	(((A) * ((B) >> 8)) >> (FPT_FBITS - 8)) // fast non-precise multiplication for small values (<10)
 #define fmul(A,B)		((fpt)(((fptd)(A) * (fptd)(B)) >> FPT_FBITS))
 #define fmul3(A,B,C)	((fpt)(((fptd)(A) * (fptd)(B) * (fptd)(C)) >> (FPT_FBITS * 2)))
 #define fmul4(A,B,C,D)	((fpt)(((((fptd)(A) * (fptd)(B) * (fptd)(C)) >> (FPT_FBITS * 2)) * (fptd)(C)) >> FPT_FBITS))
 
 #define fdivInt(A,B)	((A) / (B))
 #define fdiv(A,B)		((fpt)(((fptd)(A) << FPT_FBITS) / (fptd)(B)))
-#define fdivfst(A,B)	(fmul(A, (1 << (FPT_FBITS + 7)) / B) >> 7) // fast non-precise division, should work for small (<100) values
+#define fdivfst(A,B)	(fmul((A), (1 << (FPT_FBITS + 7)) / (B)) >> 7) // fast non-precise division, should work for small (<100) values
 
 #define ffloor(A)		((A) & 0xFFFF0000)
 #define ffrac(A)		((A) & 0xFFFF)
