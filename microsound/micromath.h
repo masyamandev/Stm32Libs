@@ -99,12 +99,12 @@ fpt sinfrq(fpt angle) {
 
 // Square form with period 1 instead of 2*Pi
 fpt squarefrq(fpt angle) {
-	return (angle & FONEHALF) ? FONE : -FONE;
+	return (angle & FONEHALF) ? -FONE : FONE;
 }
 
 // Saw form with period 1 instead of 2*Pi
 fpt sawfrq(fpt angle) {
-	return (ffrac(angle) << 1) - FONE;
+	return (ffrac(angle + FONEHALF) << 1) - FONE;
 }
 
 // Triangle form with period 1 instead of 2*Pi
