@@ -61,10 +61,10 @@ static inline fpt waveform(fpt time, fpt freq, int8_t const *form) {
 	return finterpolate8BitSigned(form[n], form[n + 1], ffrac(l) >> (FPT_FBITS - INTERPOLATION_BITS));
 }
 
-#define PERCUSSION_HAT_H	0b000010010
-#define PERCUSSION_HAT_L	0b000011001
-#define PERCUSSION_BAR_H	0b001111011
-#define PERCUSSION_BAR_L	0b111011010
+#define PERCUSSION_HAT_H	0b00001010
+#define PERCUSSION_HAT_L	0b00001101
+#define PERCUSSION_BAR_H	0b00101111
+#define PERCUSSION_BAR_L	0b10011110
 fpt percussions(fpt time, uint8_t data) {
 	int noiseVol =  (data & 0b00000011);
 	int noiseLen = ((data & 0b00001100) >> 2) + 1;
@@ -72,7 +72,7 @@ fpt percussions(fpt time, uint8_t data) {
 	int bassLen =  ((data & 0b11000000) >> 6) + 1;
 
 	return fmul3(randomSym(), fptConst(0.2) * noiseVol, pow2nfst(fmul(time, fptFromInt(16 * noiseLen)))) +
-			fmul3(sinfrq(fmul(time, fptFromInt(55))), fptConst(2) * bassVol, pow2nfst(fmulInt(time, 8 * bassLen)));
+			fmul3(sinfrq(fmul(time, fptFromInt(55))), fptConst(1.5) * bassVol, pow2nfst(fmulInt(time, 8 * bassLen)));
 }
 
 fpt electricPiano(fpt time, uint8_t data) {
