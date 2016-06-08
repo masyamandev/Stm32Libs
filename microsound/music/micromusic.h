@@ -88,7 +88,7 @@ fpt musicSound(fpt time) {
 		TrackData *track = tracks + trackId;
 		switch (command & MUSIC_COMMANDS_MASK) {
 		case MUSIC_COMMAND_STOP:
-			musicDataIndex--;
+			playSound(silence);
 			break;
 		case MUSIC_COMMAND_SPEED:
 			bpmDelay = fdivInt(fptFromInt(60), command & MUSIC_EXTENDED_DATA_MASK);
