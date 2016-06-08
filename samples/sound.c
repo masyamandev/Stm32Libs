@@ -70,13 +70,15 @@ int main(void) {
 
 //	initializeLcd();
 
-	currentSound = (currentSound < 0) ? 0 : (currentSound + 1) % SAMPLES_LEN;
-
-	playMusic(&(ohSusannaSong[0]));
+	currentSound = (currentSound < 0) ? 0 : (currentSound + 1) % (SAMPLES_LEN + 1);
 
 	while (1) {
 		waitForButton();
-		playSound(samples[currentSound]);
+		if (currentSound < SAMPLES_LEN) {
+			playSound(samples[currentSound]);
+		} else {
+			playMusic(ohSusannaSong);
+		}
 	}
 }
 
