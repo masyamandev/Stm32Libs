@@ -47,13 +47,6 @@ const fpt notes[] = {
 		FREQ_C6};
 
 
-//#define mulFreq(time, freq) (fmul(time, freq))//(fmulfst(ffrac(time), freq))
-//#define mulFreqTrim0(time, freq) (fmul(cutNegative(time), freq))//(fmulfst(ffrac(cutNegative(time)), freq))
-#define SAFE_FREQ_MUL 0x000FFFFF
-#define mulFreq(time, freq) (fmulfst((time) & SAFE_FREQ_MUL, freq))
-#define mulFreqTrim0(time, freq) (fmulfst((cutNegative(time)) & SAFE_FREQ_MUL, freq))
-
-
 static inline fpt waveform(fpt time, fpt freq, int8_t const *form) {
 	fpt t = mulFreq(time, freq);
 	fpt l = t << SINUS_TABLE_BITS;

@@ -27,8 +27,10 @@ typedef	int64_t	fptd;
 
 #define fmulInt(A,B)	((A) * (B))
 #define fmulfst(A,B)	(((A) * ((B) >> 8)) >> (FPT_FBITS - 8)) // fast non-precise multiplication for small values (<10)
+//#define fmulfst(A,B)	((((A) >> 8)) * ((B) >> 8)) // fast non-precise multiplication for small values (<10)
 #define fmul(A,B)		((fpt)(((fptd)(A) * (fptd)(B)) >> FPT_FBITS))
 #define fmul3(A,B,C)	((fpt)(((fptd)(A) * (fptd)(B) * (fptd)(C)) >> (FPT_FBITS * 2)))
+#define fmul3fst(A,B,C)	(fmulfst(fmulfst(A,B),C))
 #define fmul4(A,B,C,D)	((fpt)(((((fptd)(A) * (fptd)(B) * (fptd)(C)) >> (FPT_FBITS * 2)) * (fptd)(C)) >> FPT_FBITS))
 
 #define fdivInt(A,B)	((A) / (B))
@@ -42,6 +44,13 @@ typedef	int64_t	fptd;
 #define FONE		(1 << FPT_FBITS)
 #define FONEHALF 	(FONE >> 1)
 #define FTWO		(FONE + FONE)
+
+
+//#define mulFreq(time, freq) (fmul(time, freq))//(fmulfst(ffrac(time), freq))
+//#define mulFreqTrim0(time, freq) (fmul(cutNegative(time), freq))//(fmulfst(ffrac(cutNegative(time)), freq))
+#define SAFE_FREQ_MUL 0x000FFFFF
+#define mulFreq(time, freq) (fmulfst((time) & SAFE_FREQ_MUL, freq))
+#define mulFreqTrim0(time, freq) (fmulfst((cutNegative(time)) & SAFE_FREQ_MUL, freq))
 
 
 #define SINUS_TABLE_BITS 5
@@ -89,6 +98,8 @@ const fpt exp2pTable[33] = {
 fpt sinfrq(fpt angle) {
 	fpt l = angle << SINUS_TABLE_BITS;
 	uint32_t n = fptToInt(l) & SINUS_LOOKUP_MASK;
+//	return sinTable[n];
+//	return sinTableUB[n] << 9;
 #ifdef PRECISE_SIN_TABLE
 	return finterpolate(sinTable[n], sinTable[n + 1], ffrac(l) >> (FPT_FBITS - INTERPOLATION_BITS));
 #else
@@ -114,7 +125,7 @@ fpt trianglefrq(fpt angle) {
 }
 
 
-#define cutNegative(T) (T >= 0 ? T : 0)
+#define cutNegative(T) ((T) >= 0 ? (T) : 0)
 
 // Return value closest to 0 with limited maximal difference
 fpt moveToZero(fpt value, fpt maxDiff) {
