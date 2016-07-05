@@ -56,10 +56,10 @@ fpt wawa(fpt time) {
 }
 
 fpt pfrr(fpt time) {
-	return fmul3(squarefrq(fmulfst(time, fptFromInt(20) + randomSym())), pow2nfst(fmulInt(time, 16)), fptConst(0.5));
+	return fmul3fst(squarefrq(fmulfst(time, fptFromInt(20) + randomSym())), pow2nfst(fmulInt(time, 16)), fptConst(0.5));
 }
 
 fpt noise(fpt time) {
-	return fmul3(randomSym(), time << 2, pow2nfst(fmulfst(time, fptFromInt(16))));
+	return fmul3fst(time << 2, pow2nfst(fmulfst(time, fptFromInt(16))), randomSym());
 }
 

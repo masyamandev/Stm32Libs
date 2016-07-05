@@ -46,8 +46,7 @@ typedef	int64_t	fptd;
 #define FTWO		(FONE + FONE)
 
 
-//#define mulFreq(time, freq) (fmul(time, freq))//(fmulfst(ffrac(time), freq))
-//#define mulFreqTrim0(time, freq) (fmul(cutNegative(time), freq))//(fmulfst(ffrac(cutNegative(time)), freq))
+// Multiply time (should be < 16 seconds) on frequency (should be less than 2kHz)
 #define SAFE_FREQ_MUL 0x000FFFFF
 #define mulFreq(time, freq) (fmulfst((time) & SAFE_FREQ_MUL, freq))
 #define mulFreqTrim0(time, freq) (fmulfst((cutNegative(time)) & SAFE_FREQ_MUL, freq))
