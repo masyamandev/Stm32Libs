@@ -27,7 +27,6 @@ typedef	int64_t	fptd;
 
 #define fmulInt(A,B)	((A) * (B))
 #define fmulfst(A,B)	(((A) * ((B) >> 8)) >> (FPT_FBITS - 8)) // fast non-precise multiplication for small values (<10)
-//#define fmulfst(A,B)	((((A) >> 8)) * ((B) >> 8)) // fast non-precise multiplication for small values (<10)
 #define fmul(A,B)		((fpt)(((fptd)(A) * (fptd)(B)) >> FPT_FBITS))
 #define fmul3(A,B,C)	((fpt)(((fptd)(A) * (fptd)(B) * (fptd)(C)) >> (FPT_FBITS * 2)))
 #define fmul3fst(A,B,C)	(fmulfst(fmulfst(A,B),C))

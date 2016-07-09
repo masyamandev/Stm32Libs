@@ -74,7 +74,7 @@ static fpt silenceInstrument(fpt time, uint8_t data) {
 }
 
 inline static fpt playInstrument(TrackData* track, fpt time) {
-	return fmul(
+	return fmulfst(
 			track->instrument(time - track->startTime, track->data),
 			track->volume
 		);

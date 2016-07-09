@@ -64,8 +64,8 @@ fpt percussions(fpt time, uint8_t data) {
 	int bassVol =  ((data & 0b00110000) >> 4);
 	int bassLen =  ((data & 0b11000000) >> 6) + 1;
 
-	return fmul3(randomSym(), fptConst(0.2) * noiseVol, pow2nfst(fmul(time, fptFromInt(16 * noiseLen)))) +
-			fmul3(sinfrq(fmul(time, fptFromInt(55))), fptConst(1.5) * bassVol, pow2nfst(fmulInt(time, 8 * bassLen)));
+	return fmul3fst(randomSym(), fptConst(0.2) * noiseVol, pow2nfst(fmulInt(time, 16 * noiseLen))) +
+			fmul3fst(sinfrq(fmulInt(time, 55)), fptConst(1.5) * bassVol, pow2nfst(fmulInt(time, 8 * bassLen)));
 }
 
 fpt electricPiano(fpt time, uint8_t data) {
@@ -74,7 +74,7 @@ fpt electricPiano(fpt time, uint8_t data) {
 
 fpt harmonica(fpt time, uint8_t data) {
 	fpt t = mulFreq(time, notes[data & NOTE_MASK]);
-	return fmul3(
+	return fmul3fst(
 				sinfrq(fmulInt(t, 3)),
 				fdivInt(sawfrq(t), 2) + 1,
 				pow2nfst(time) - pow2nfst(fmulInt(time, 40))
@@ -119,7 +119,7 @@ fpt bass(fpt time, uint8_t data) {
 	return fmulfst(
 			sinfrq(mulFreq(time, n)) +
 			sinfrq(mulFreq(time, n * 2)) / 2 +
-			sinfrq(mulFreq(time, n * 3)) / 3 +
+			sinfrq(mulFreq(time, n * 3)) * 5 / 16 + // faster than / 3 +
 			sinfrq(mulFreq(time, n * 4)) / 4
 		, pow2nfst(fmulInt(time, 2)));
 }
