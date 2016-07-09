@@ -89,7 +89,7 @@ fpt musicSound(fpt time) {
 		switch (command & MUSIC_COMMANDS_MASK) {
 		case MUSIC_COMMAND_STOP:
 			playSound(silence);
-			break;
+			return FZERO;
 		case MUSIC_COMMAND_SPEED:
 			bpmDelay = fdivInt(fptFromInt(60), command & MUSIC_EXTENDED_DATA_MASK);
 			break;
@@ -137,7 +137,7 @@ fpt musicSound(fpt time) {
 }
 
 int isMusicPlaying() {
-	return ((*(musicData + musicDataIndex)) & MUSIC_COMMANDS_MASK) != MUSIC_COMMAND_STOP;
+	return ((*(musicData + musicDataIndex - 1)) & MUSIC_COMMANDS_MASK) != MUSIC_COMMAND_STOP;
 }
 
 
