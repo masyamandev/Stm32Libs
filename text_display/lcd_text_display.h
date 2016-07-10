@@ -82,6 +82,18 @@ void cursor(char row, char col)
     address |= col;
     sendByte(0x80 | address, FALSE);
     __longDelay();
+
+#ifdef LCD_SEMIHOSTING
+    SH_SendChar('\n');
+    SH_SendChar('[');
+    SH_SendChar('0' + row);
+    SH_SendChar(',');
+    SH_SendChar('0' + (col / 10));
+    SH_SendChar('0' + (col % 10));
+    SH_SendChar(']');
+    SH_SendChar(':');
+    SH_SendChar(' ');
+#endif
 }
 
 
@@ -91,6 +103,9 @@ void clearLcdScreen()
     __longDelay();
     sendByte(0x02, FALSE);
     __longDelay();
+#ifdef LCD_SEMIHOSTING
+    SH_SendChar('\n');
+#endif
 }
 
 void initializeLcd(void)
@@ -134,6 +149,9 @@ void printStr(char *text)
     c = text;
     while ((c != 0) && (*c != 0)) {
         sendByte(*c, TRUE);
+#ifdef LCD_SEMIHOSTING
+        SH_SendChar(*c);
+#endif
         c++;
     }
 }
